@@ -2772,6 +2772,18 @@ func TestIter(t *testing.T) {
 func TestIntOverflow(t *testing.T) {
 	// https://github.com/tidwall/gjson/issues/394
 
+	// Numbers that overflow uint64 but wrap to a larger accumulator
+	// value, so the old next < n check missed them.
+	assert(t, Parse("92233720368547758070").Uint() == 18446744073709551615)
+	assert(t, Parse("25000000000000000000").Uint() == 18446744073709551615)
+	assert(t, Parse("212477714621960369125").Uint() == 18446744073709551615)
+	assert(t, Parse("24134132286002593217").Int() == 9223372036854775807)
+	assert(t, Parse("92233720368547758070").Int() == 9223372036854775807)
+
+	// Strings
+	assert(t, Parse(`"92233720368547758070"`).Uint() == 18446744073709551615)
+	assert(t, Parse(`"24134132286002593217"`).Int() == 9223372036854775807)
+
 	// Numbers
 	assert(t, Parse("18446744073709551613").Uint() == 18446744073709551613)
 	assert(t, Parse("18446744073709551614").Uint() == 18446744073709551614)

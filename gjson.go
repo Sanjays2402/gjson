@@ -2824,11 +2824,14 @@ func parseUint(s string) (uint64, bool) {
 		if s[i] < '0' || s[i] > '9' {
 			return 0, false
 		}
-		next := n*10 + uint64(s[i]-'0')
-		if next < n {
+		d := uint64(s[i] - '0')
+		// Check for overflow before multiplying. Comparing the wrapped
+		// result against the previous value misses overflows where the
+		// wrapped accumulator still grows.
+		if n > (math.MaxUint64-d)/10 {
 			goto overflow
 		}
-		n = next
+		n = n*10 + d
 	}
 	return n, true
 overflow:
